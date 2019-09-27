@@ -1,1 +1,44 @@
-<p>gramaticas works!</p>
+<h2>Analizador de gramáticas</h2>
+
+
+<form [formGroup]="gramaticas">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="exampleFormControlTextarea1">Ingreso manual de gramática</label>
+                <textarea formControlName="manual" class="form-control" id="exampleFormControlTextarea1" rows="5"></textarea>
+            </div>
+            <button type="button" class="btn btn-primary" (click)="docCadena()">Primary</button>
+        </div>
+
+        <div class="col-md-6">
+            <label for="exampleFormControlTextarea1">Carga de archivo .txt con gramática</label>
+            <div class="input-group mb-3">
+                <div class="custom-file">
+                    <input type="file" formControlName="archivo" class="custom-file-input" id="inputGroupFile02" (change)="lector($event.target.files)">
+                    <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Adjuntar archivo</label>
+                </div>
+                <div class="input-group-append">
+                    <span class="input-group-text" id="inputGroupFileAddon02">Upload</span>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" (click)="lector()">Secundario</button>
+        </div>
+    </div>
+</form>
+
+<br>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col"># de producción</th>
+            <th scope="col">Datos</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th scope="row">1</th>
+            <td>Mark</td>
+        </tr>
+    </tbody>
+</table>
