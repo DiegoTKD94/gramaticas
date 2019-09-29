@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { string } from '../../../../node_modules/string';
+import { LinkedListService } from '../../services/linked-list.service';
+
 
 
 @Component({
@@ -13,7 +14,7 @@ export class GramaticasComponent implements OnInit {
   cadena: string[] = [];
   file: any;
 
-  constructor() { }
+  constructor(private lista: LinkedListService<Object>) { }
 
   gramaticas = new FormGroup({
     manual: new FormControl(''),
@@ -62,19 +63,52 @@ export class GramaticasComponent implements OnInit {
 
   // Crea la lista ligada con las producciones (Adecuar las listas ligadas)
   construyeLista(lista: string[]) {
-    let estado = 1;
-    switch (estado) {
-      case 1:
-        if (lista[0][0] !== '<') {
-          estado = 10;
-          console.log(estado);
-          break;
-        } else {
-          console.log('Funcionó');
-          estado = 2;
-          console.log(estado);
-          break;
+    for (let i = 0; i <= (lista.length - 1); i++) {
+      let estado = 1;
+      let elemento = ''; // Guardará cada terminal y no terminal
+      for (let j = 0; j <= (lista[i].length - 1); j++) {
+        switch (estado) {
+          case 1:
+            if (lista[i][0] !== '<') {
+              estado = 10; // Puede ser el estado de error
+              console.log('error');
+              return;
+            } else {
+              estado = 2;
+              elemento = elemento + lista[i][0];
+              break;
+            }
+          case 2:
+            if (lista[i][j] === ('>' || '~')) {
+              estado = 10;
+              console.log('error');
+              return;
+            } else {
+              estado = 3;
+              elemento = elemento + lista[i][j];
+              break;
+            }
+          case 3:
+            if (lista[i][j] === ('<' || '~')) {
+              estado = 10;
+              console.log('error');
+              return;
+            } else if (lista[i][j] === '>') {
+              estado = 4;
+              elemento = elemento + lista[i][j];
+              console.log(elemento);
+              break;
+            } else {
+              estado = 3;
+              elemento = elemento + lista[i][j];
+              break;
+            }
+          case 4:
+            console.log('Exitoso hasta el 4');
+            break;
+
         }
+      }
     }
   }
 
