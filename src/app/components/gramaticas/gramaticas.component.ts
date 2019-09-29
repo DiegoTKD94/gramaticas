@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { string } from '../../../../node_modules/string';
+
 
 @Component({
   selector: 'app-gramaticas',
@@ -9,7 +11,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 export class GramaticasComponent implements OnInit {
 
   cadena: string[] = [];
-  fileContent: any = '';
+  file: any;
 
   constructor() { }
 
@@ -18,16 +20,19 @@ export class GramaticasComponent implements OnInit {
     archivo: new FormControl(''),
   });
 
-  lector(fileList: FileList) {
-    let file = fileList[0];
-    let fileReader: FileReader = new FileReader();
-    fileReader.onloadend = (x) => {
-      this.fileContent = fileReader.result;
-      return this.fileContent;
+  // Usado para la lectura desde .txt
+  fileChanged(e) {
+    this.file = e.target.files[0];
+    console.log(this.file);
+  }
+
+  // Usada para la lectura desde .txt
+  uploadDocument(file) {
+    let fileReader = new FileReader();
+    fileReader.onload = (e) => {
+      console.log(fileReader.result);
     };
-    fileReader.readAsText(file);
-    console.log(this.fileContent);
-    console.log(fileList);
+    fileReader.readAsText(this.file);
   }
 
   ngOnInit() {
@@ -37,16 +42,47 @@ export class GramaticasComponent implements OnInit {
     console.log(this.gramaticas.controls.archivo);
   }
 
-  docCadena() {
-    const value: string = this.gramaticas.controls.manual.value;
-    let nroElementos = 0;
-    nroElementos = value.length;
-    for (let caracter of value) {
-      console.log(caracter);
-      if (caracter === '\n') { // Con esto se diferencia cuando hay un espacio en blanco
+  // Indexa cada una de las producciones, no ha hecho validación
+  gramPrevia(valor: string) {
+    let contador = 0;
+    let previa = '';
+    for (let i = 0; i <= (valor.length - 1); i++) {
+      if (valor[i] !== '\n') {
+        previa = previa + valor[i];
+        this.cadena[contador] = previa;
+      } else if (valor[i] === '\n' && previa === '') {
         console.log('1');
+      } else {
+        this.cadena[contador] = previa;
+        previa = '';
+        contador++;
       }
     }
+  }
+
+  // Crea la lista ligada con las producciones (Adecuar las listas ligadas)
+  construyeLista(lista: string[]) {
+    let estado = 1;
+    switch (estado) {
+      case 1:
+        if (lista[0][0] !== '<') {
+          estado = 10;
+          console.log(estado);
+          break;
+        } else {
+          console.log('Funcionó');
+          estado = 2;
+          console.log(estado);
+          break;
+        }
+    }
+  }
+
+  docCadena() {
+    const value: string = this.gramaticas.controls.manual.value;
+    this.gramPrevia(value);
+    console.log(this.cadena);
+    this.construyeLista(this.cadena);
   }
 }
 

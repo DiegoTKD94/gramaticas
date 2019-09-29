@@ -15,14 +15,14 @@
             <label for="exampleFormControlTextarea1">Carga de archivo .txt con gramática</label>
             <div class="input-group mb-3">
                 <div class="custom-file">
-                    <input type="file" formControlName="archivo" class="custom-file-input" id="inputGroupFile02" (change)="lector($event.target.files)">
+                    <input type="file" formControlName="archivo" class="custom-file-input" id="inputGroupFile02" (change)="fileChanged($event)">
                     <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Adjuntar archivo</label>
                 </div>
                 <div class="input-group-append">
                     <span class="input-group-text" id="inputGroupFileAddon02">Upload</span>
                 </div>
             </div>
-            <button type="button" class="btn btn-primary" (click)="lector()">Secundario</button>
+            <button type="button" class="btn btn-primary" (click)="uploadDocument(file)">Secundario</button>
         </div>
     </div>
 </form>
