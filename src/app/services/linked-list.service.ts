@@ -36,6 +36,10 @@ export class LinkedListService<T> {
     return { value, next: null };
   }
 
+  public obtenerHead = () => {
+    return this.head;
+  }
+
   private appendToTheEndOfTheList = (node: INode<T>) => {
     this.tail.next = node;
     this.tail = node;

@@ -17,10 +17,9 @@ export class GramaticasComponent implements OnInit {
 
   cadena: string[] = [];
   file: any;
+  nAnulables: string[] = [];
 
-  constructor(// private lista: LinkedListService<NodoService>,
-              // private nodo: NodoService
-              ) { }
+  constructor() { }
 
   gramaticas = new FormGroup({
     manual: new FormControl(''),
@@ -63,6 +62,22 @@ export class GramaticasComponent implements OnInit {
         this.cadena[contador] = previa;
         previa = '';
         contador++;
+      }
+    }
+  }
+
+  nAnulablesIniciales(nodo: any) {
+    let aparece = false;
+    if (this.nAnulables.length === 0) {
+      this.nAnulables.push(nodo);
+    } else {
+      for (let valor of this.nAnulables) {
+        if (valor === nodo) {
+          aparece = true;
+        }
+      }
+      if (!aparece) {
+        this.nAnulables.push(nodo);
       }
     }
   }
@@ -114,7 +129,7 @@ export class GramaticasComponent implements OnInit {
           case 4:
             if (lista[i][j] === '~') {
               estado = 5;
-              let nodo = new NodoService(elemento, 'N');
+              let nodo = new NodoService(elemento, 'N', false);
               listaProduccion.append(nodo);
               elemento = '';
               break;
@@ -128,7 +143,7 @@ export class GramaticasComponent implements OnInit {
             if ((lista[i][j] !== '~') && (lista[i][j] !== '<') && (lista[i][j] !== '>') && (lista[i][j] !== '!')) { // letra
               estado = 5;
               elemento = lista[i][j];
-              let nodo = new NodoService(elemento, 'T');
+              let nodo = new NodoService(elemento, 'T', false);
               listaProduccion.append(nodo);
               nulo = true; // Condiciona que no haya secuencia nula despues de un no terminal
               break;
@@ -145,8 +160,11 @@ export class GramaticasComponent implements OnInit {
               } else {
                 estado = 6;
                 elemento = lista[i][j];
-                let nodo = new NodoService(elemento, 'T');
+                let nodo = new NodoService(elemento, 'T', true);
                 listaProduccion.append(nodo);
+                listaProduccion.obtenerHead().value.modifAnulables(true);
+                this.nAnulablesIniciales(listaProduccion.obtenerHead().value.getValue());
+                console.log(this.nAnulables);
                 nulo = true;
                 console.log('ok');
                 break;
@@ -181,7 +199,7 @@ export class GramaticasComponent implements OnInit {
               } else if (lista[i][j] === '>') {
                 estado = 9;
                 elemento = elemento + lista[i][j];
-                let nodo = new NodoService(elemento, 'N');
+                let nodo = new NodoService(elemento, 'N', false);
                 listaProduccion.append(nodo);
                 elemento = '';
                 break;
@@ -202,23 +220,10 @@ export class GramaticasComponent implements OnInit {
             } else {
               estado = 5;
               elemento = lista[i][j];
-              let nodo = new NodoService(elemento, 'T');
+              let nodo = new NodoService(elemento, 'T', false);
               listaProduccion.append(nodo);
               break;
             }
-            // if ((lista[i][j] !== '~') && (lista[i][j] !== '<') && (lista[i][j] !== '>') && (lista[i][j] !== '!') && !nulo) {
-            //   console.log('avanzó');
-            //   estado = 5;
-            //   elemento = lista[i][j];
-            //   let nodo = new NodoService(elemento, 'T');
-            //   listaProduccion.append(nodo);
-            //   break;
-            // } else if (lista[i][j] === '<') {
-            //   console.log('avanzó');
-            //   estado = 7;
-            //   elemento = lista[i][j];
-            //   break;
-            // }
         }
       }
       console.log(listaProduccion.toArray());

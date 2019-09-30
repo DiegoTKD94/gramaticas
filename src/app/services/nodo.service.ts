@@ -9,10 +9,11 @@ export class NodoService {
 
   nodo: NodoGram;
 
-  constructor(valor, tipo) {
+  constructor(valor, tipo, anulable) {
     this.nodo = {
       valor,
-      tipo
+      tipo,
+      anulable
     };
   }
 
@@ -20,17 +21,27 @@ export class NodoService {
     return this.nodo;
   }
 
-  asignaValores(valor, tipo) {
+  asignaValores(valor, tipo, anulable) {
     this.nodo = {
       valor,
-      tipo
+      tipo,
+      anulable
     };
+  }
+
+  getValue() {
+    return this.nodo.valor;
+  }
+
+  modifAnulables(value) {
+    this.nodo.anulable = value;
   }
 
   formateaNodo() {
     this.nodo = {
       valor: '',
       tipo: '',
+      anulable: false,
     };
   }
 }
