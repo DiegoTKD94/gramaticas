@@ -33,6 +33,10 @@ export class NodoService {
     return this.nodo.valor;
   }
 
+  getAnulable() {
+    return this.nodo.anulable;
+  }
+
   modifAnulables(value) {
     this.nodo.anulable = value;
   }

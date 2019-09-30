@@ -18,6 +18,7 @@ export class GramaticasComponent implements OnInit {
   cadena: string[] = [];
   file: any;
   nAnulables: string[] = [];
+  producciones: LinkedListService<NodoService>[] = [];
 
   constructor() { }
 
@@ -82,12 +83,56 @@ export class GramaticasComponent implements OnInit {
     }
   }
 
+  primRecorrido() {
+    for (let produccion of this.producciones) {
+      let siguiente = produccion.obtenerHead();
+      while (siguiente !== null) {
+        for (let noTerm of this.nAnulables) {
+          if (siguiente.value.getValue() === noTerm) {
+            siguiente.value.modifAnulables(true);
+          }
+        }
+        siguiente = siguiente.next;
+      }
+    }
+  }
+
+  segundoRecorrido() {
+    for (let produccion of this.producciones) {
+      let anulable = true;
+      let siguiente = produccion.obtenerHead();
+      let primero = siguiente.next;
+      let aparece = false;
+      while (primero !== null) {
+        if (primero.value.getAnulable() === false) {
+          anulable = false;
+        }
+        primero = primero.next;
+      }
+      if (anulable && (siguiente.value.getAnulable() === false)) {
+        siguiente.value.modifAnulables(true);
+        // tslint:disable-next-line: prefer-for-of
+        for (let i = 0; i < this.nAnulables.length; i++) {
+          if (siguiente.value.getValue() === this.nAnulables[i]) {
+            aparece = true;
+          }
+        }
+        if (aparece === false) {
+          this.nAnulables.push(siguiente.value.getValue());
+        }
+        this.primRecorrido();
+        this.segundoRecorrido();
+      }
+    }
+  }
+
   // Crea la lista ligada con las producciones (Adecuar las listas ligadas)
   construyeLista(lista: string[]) {
     for (let i = 0; i <= (lista.length - 1); i++) {
       let estado = 1;
       let elemento = ''; // Guardará cada terminal y no terminal
       let listaProduccion = new LinkedListService<NodoService>();
+      this.producciones.push(listaProduccion);
       let nulo = false;
       for (let j = 0; j <= (lista[i].length - 1); j++) {
         switch (estado) {
@@ -228,6 +273,7 @@ export class GramaticasComponent implements OnInit {
       }
       console.log(listaProduccion.toArray());
     }
+    console.log(this.producciones);
   }
 
   docCadena() {
@@ -235,6 +281,9 @@ export class GramaticasComponent implements OnInit {
     this.gramPrevia(value);
     console.log(this.cadena);
     this.construyeLista(this.cadena);
+    this.primRecorrido();
+    this.segundoRecorrido();
+    console.log(this.nAnulables);
   }
 }
 
