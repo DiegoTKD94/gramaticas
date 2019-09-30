@@ -21,6 +21,10 @@ export class NodoService {
     return this.nodo;
   }
 
+  getTipo() {
+    return this.nodo.tipo;
+  }
+
   asignaValores(valor, tipo, anulable) {
     this.nodo = {
       valor,

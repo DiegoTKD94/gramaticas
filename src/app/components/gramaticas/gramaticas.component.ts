@@ -4,6 +4,7 @@ import { LinkedListService } from '../../services/linked-list.service';
 import { NodoGram } from '../../interfaces/nodo-gram.interface';
 import { NodoService } from '../../services/nodo.service';
 import { THIS_EXPR, ClassField } from '@angular/compiler/src/output/output_ast';
+import { ElementoGramService } from '../../services/elemento-gram.service';
 
 
 
@@ -18,7 +19,10 @@ export class GramaticasComponent implements OnInit {
   cadena: string[] = [];
   file: any;
   nAnulables: string[] = [];
+  producAnulables: number[] = [];
   producciones: LinkedListService<NodoService>[] = [];
+  elementoGram: ElementoGramService[] = [];
+  noTerminales: string[] = [];
 
   constructor() { }
 
@@ -84,8 +88,9 @@ export class GramaticasComponent implements OnInit {
   }
 
   primRecorrido() {
-    for (let produccion of this.producciones) {
-      let siguiente = produccion.obtenerHead();
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 0; i < this.producciones.length; i++) {
+      let siguiente = this.producciones[i].obtenerHead();
       while (siguiente !== null) {
         for (let noTerm of this.nAnulables) {
           if (siguiente.value.getValue() === noTerm) {
@@ -122,6 +127,23 @@ export class GramaticasComponent implements OnInit {
         }
         this.primRecorrido();
         this.segundoRecorrido();
+      }
+    }
+  }
+
+  produccionesAnu() {
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 0; i < this.producciones.length; i++) {
+      let anulable = true;
+      let siguiente = this.producciones[i].obtenerHead();
+      while (siguiente !== null) {
+        if (siguiente.value.getAnulable() === false) {
+          anulable = false;
+        }
+        siguiente = siguiente.next;
+      }
+      if (anulable === true) {
+        this.producAnulables.push(i);
       }
     }
   }
@@ -276,6 +298,120 @@ export class GramaticasComponent implements OnInit {
     console.log(this.producciones);
   }
 
+  obtenerElementoGram() {
+    let added: string[] = [];
+    for (let produccion of this.producciones) {
+      let valor = produccion.obtenerHead().value.getValue();
+      if (added.indexOf(valor) < 0) {
+        added.push(valor);
+        let elemento = new ElementoGramService(valor);
+        this.elementoGram.push(elemento);
+      }
+    }
+  }
+
+  primeros() {
+    for (let produccion of this.producciones) {
+      // tslint:disable-next-line: prefer-for-of
+      let indice: number;
+      let terminal = false;
+      let siguiente = produccion.obtenerHead().next;
+      let actual = produccion.obtenerHead().value.getValue();
+      for (let j = 0; j < this.elementoGram.length; j++) {
+        if (this.elementoGram[j].getValor() === produccion.obtenerHead().value.getValue()) {
+          indice = j;
+          break;
+        }
+      }
+      if ((siguiente.value.getTipo() === 'T') && (siguiente.value.getValue() !== '!')) { // El valor es un terminal
+        console.log('Entro');
+        this.elementoGram[indice].addPrimero(siguiente.value.getValue());
+      } else if (siguiente.value.getValue() !== '!') { // El nodo es un no terminal
+          while (terminal === false) {
+            if (siguiente.value.getValue() !== actual) { // No es el mismo nodo
+              this.elementoGram[indice].addPrimero(siguiente.value.getValue());
+              if (siguiente.value.getTipo() === 'T') {
+                terminal = true;
+              }
+            }
+            if (siguiente.next === null) {
+              break;
+            }
+          }
+      }
+    }
+  }
+
+  noTerm() {
+    for (let produccion of this.producciones) {
+      if (this.noTerminales.indexOf(produccion.obtenerHead().value.getValue()) < 0) {
+        this.noTerminales.push(produccion.obtenerHead().value.getValue());
+      }
+    }
+  }
+
+  primerosNuevo(noTerminales) {
+    for (let N of noTerminales) {
+      console.log(this.nuevoPrimerInd(N));
+    }
+  }
+
+  nuevoPrimerInd(valor) {
+    let primerosValue: string[] = [];
+    for (let produccion of this.producciones) {
+      if (produccion.obtenerHead().value.getValue() === valor) {
+        let nodo = produccion.obtenerHead().next;
+        let tipo = nodo.value.getTipo();
+        switch (tipo) {
+          case 'T':
+            if (nodo.value.getValue() !== '!') {
+              primerosValue.push(nodo.value.getValue());
+            }
+            break;
+          case 'N':
+              if (nodo.value.getAnulable() === true) {
+                  let lista = [];
+                  let proximos = [];
+                  let anulable = true;
+                  lista = this.nuevoPrimerInd(nodo.value.getValue());
+                  primerosValue = primerosValue.concat(lista);
+                  while (anulable && (nodo !== null) && (nodo.next !== null)) {
+                    nodo = nodo.next;
+                    proximos.push(nodo.value.getValue());
+                    if (nodo.value.getTipo() === 'T') {
+                      primerosValue.push(nodo.value.getValue());
+                    }
+                    if (nodo.value.getAnulable() === false) {
+                      anulable = false;
+                    }
+                  }
+                  for (let elemento of proximos) {
+                    lista = this.nuevoPrimerInd(elemento);
+                    primerosValue = primerosValue.concat(lista);
+                  }
+                  console.log('Estos son :' + proximos);
+              }
+              if (nodo.value.getAnulable() === false) {
+                primerosValue.push(nodo.value.getValue());
+              }
+              break;
+        }
+      }
+    }
+    return primerosValue;
+  }
+
+  primeroInd(valor) {
+    let indice: number;
+    for (let j = 0; j < this.elementoGram.length; j++) {
+      if (this.elementoGram[j].getValor() === valor) {
+        indice = j;
+        break;
+      }
+    }
+    return this.elementoGram[indice].getPrimeros();
+  }
+
   docCadena() {
     const value: string = this.gramaticas.controls.manual.value;
     this.gramPrevia(value);
@@ -283,7 +419,13 @@ export class GramaticasComponent implements OnInit {
     this.construyeLista(this.cadena);
     this.primRecorrido();
     this.segundoRecorrido();
+    this.produccionesAnu();
+    this.obtenerElementoGram();
     console.log(this.nAnulables);
+    console.log(this.producAnulables);
+    console.log('Añadidos: ');
+    this.noTerm();
+    this.primerosNuevo(this.noTerminales);
   }
 }
 
