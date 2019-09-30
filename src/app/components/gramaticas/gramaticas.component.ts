@@ -23,6 +23,7 @@ export class GramaticasComponent implements OnInit {
   producciones: LinkedListService<NodoService>[] = [];
   elementoGram: ElementoGramService[] = [];
   noTerminales: string[] = [];
+  primerosProd: string[][] = [];
 
   constructor() { }
 
@@ -350,9 +351,19 @@ export class GramaticasComponent implements OnInit {
     }
   }
 
+  // Este método almacena los primeros en elementoGram, en su respectivo índice.
   primerosNuevo(noTerminales) {
     for (let N of noTerminales) {
-      console.log(this.nuevoPrimerInd(N));
+      let indice: number;
+      let primeros = this.nuevoPrimerInd(N);
+      // console.log(this.nuevoPrimerInd(N));
+      for (let j = 0; j < this.elementoGram.length; j++) {
+        if (this.elementoGram[j].getValor() === N) {
+          indice = j;
+          break;
+        }
+      }
+      this.elementoGram[indice].concatPrimero(primeros);
     }
   }
 
@@ -389,7 +400,6 @@ export class GramaticasComponent implements OnInit {
                     lista = this.nuevoPrimerInd(elemento);
                     primerosValue = primerosValue.concat(lista);
                   }
-                  console.log('Estos son :' + proximos);
               }
               if (nodo.value.getAnulable() === false) {
                 primerosValue.push(nodo.value.getValue());
@@ -398,10 +408,59 @@ export class GramaticasComponent implements OnInit {
         }
       }
     }
+    primerosValue = [...new Set(primerosValue)];
     return primerosValue;
   }
 
-  primeroInd(valor) {
+  primerosProducciones() {
+    let tamaño = this.producciones.length;
+    for (let i = 0; i < tamaño; i++) {
+      let siguiente = this.producciones[i].obtenerHead().next;
+      if (siguiente.value.getValue() === '!') {
+        this.primerosProd.push('');
+      } else {
+        let tipo = siguiente.value.getTipo();
+        switch (tipo) {
+          case 'T':
+            let vector: string[] = [];
+            vector.push(siguiente.value.getValue());
+            this.primerosProd.push(vector);
+            break;
+          case 'N':
+            if (siguiente.value.getAnulable() === false) { // El no terminal es no es anulable
+              let primerosTerm = this.primeroInd(siguiente.value.getValue());
+              this.primerosProd.push(primerosTerm);
+              break;
+            } else { // El terminal es anulable
+              let vector: string[] = [];
+              let anulable = true;
+              let final = false;
+              while (anulable) {
+                if (siguiente === null) {
+                  anulable = false;
+                  let final = true;
+                } else if (siguiente.value.getAnulable() === false) {
+                  if (siguiente.value.getTipo() === 'T') {
+                    vector = vector.concat(siguiente.value.getValue());
+                  } else {
+                      let primerosTerm = this.primeroInd(siguiente.value.getValue());
+                      vector = vector.concat(primerosTerm);
+                  }
+                  anulable = false;
+                } else {
+                  let primerosTerm = this.primeroInd(siguiente.value.getValue());
+                  vector = vector.concat(primerosTerm);
+                  siguiente = siguiente.next;
+                }
+              }
+              this.primerosProd.push(vector);
+            }
+        }
+      }
+    }
+  }
+
+  primeroInd(valor) { // Retorna los primeros de un no terminal en específico
     let indice: number;
     for (let j = 0; j < this.elementoGram.length; j++) {
       if (this.elementoGram[j].getValor() === valor) {
@@ -421,11 +480,11 @@ export class GramaticasComponent implements OnInit {
     this.segundoRecorrido();
     this.produccionesAnu();
     this.obtenerElementoGram();
-    console.log(this.nAnulables);
-    console.log(this.producAnulables);
-    console.log('Añadidos: ');
     this.noTerm();
     this.primerosNuevo(this.noTerminales);
+    console.log(this.elementoGram);
+    this.primerosProducciones();
+    console.log(this.primerosProd);
   }
 }
 

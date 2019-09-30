@@ -16,7 +16,7 @@ export class ElementoGramService {
   }
 
   concatPrimero(valor) {
-    this.primeros.concat(valor);
+    this.primeros = this.primeros.concat(valor);
   }
 
   getValor() {
