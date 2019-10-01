@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { LinkedListService } from '../../services/linked-list.service';
-import { NodoGram } from '../../interfaces/nodo-gram.interface';
 import { NodoService } from '../../services/nodo.service';
-import { THIS_EXPR, ClassField } from '@angular/compiler/src/output/output_ast';
 import { ElementoGramService } from '../../services/elemento-gram.service';
 
 
@@ -159,7 +157,7 @@ export class GramaticasComponent implements OnInit {
         switch (estado) {
           case 1:
             if (lista[i][0] !== '<') {
-              estado = 10; // Puede ser el estado de error
+              estado = 10; // Estado de error;
               console.log('error');
               return;
             } else {
@@ -237,7 +235,6 @@ export class GramaticasComponent implements OnInit {
               }
             } else {
                 estado = 10;
-                console.log('error EST5');
                 return;
             }
           case 6:
@@ -354,7 +351,6 @@ export class GramaticasComponent implements OnInit {
     for (let N of noTerminales) {
       let indice: number;
       let primeros = this.nuevoPrimerInd(N);
-      // console.log(this.nuevoPrimerInd(N));
       for (let j = 0; j < this.elementoGram.length; j++) {
         if (this.elementoGram[j].getValor() === N) {
           indice = j;
@@ -473,7 +469,7 @@ export class GramaticasComponent implements OnInit {
 
   conjSiguientes() {
     for (let elemento of this.noTerminales) {
-      this.nuevoSiguientesInd(elemento);
+      let siguientes = this.nuevoSiguientesInd(elemento);
     }
   }
 
@@ -497,19 +493,22 @@ export class GramaticasComponent implements OnInit {
               let lista = [];
               let head = this.producciones[i].obtenerHead();
               if (nodo.next === null) {
-                console.log('Esta al final');
+                if (head.value.getValue() !== nodo.value.getValue()) {
+                  lista = this.nuevoSiguientesInd(head.value.getValue());
+                  siguientes = siguientes.concat(lista);
+                }
+
               } else if (nodo.next.value.getTipo() === 'T') { // Nodo siguiente es terminal
-                console.log('El nodo siguiente es un T');
+                siguientes.push(nodo.next.value.getValue());
               } else if (nodo.next.value.getTipo() === 'N') { // Nodo siguiente es no terminal
-                console.log('El nodo siguiente es un N');
+                siguientes.push(nodo.next.value.getTipo());
               }
-
-
               nodo = nodo.next;
           }
         }
       }
     }
+    return siguientes;
   }
 
   docCadena() {
@@ -524,7 +523,6 @@ export class GramaticasComponent implements OnInit {
     this.noTerm();
     this.primerosNuevo(this.noTerminales);
     this.primerosProducciones();
-    this.conjSiguientes();
   }
 }
 
