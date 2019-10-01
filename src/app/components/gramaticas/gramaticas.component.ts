@@ -22,6 +22,10 @@ export class GramaticasComponent implements OnInit {
   elementoGram: ElementoGramService[] = [];
   noTerminales: string[] = [];
   primerosProd: string[][] = [];
+  error = false;
+  adjunto = false;
+  nombreArchivo: string;
+  paginaCargada = false;
 
   constructor(private analizador: AnalizadorGramaticalService) { }
 
@@ -34,6 +38,8 @@ export class GramaticasComponent implements OnInit {
   fileChanged(e) {
     this.file = e.target.files[0];
     console.log(this.file);
+    this.adjunto = true;
+    this.nombreArchivo = this.file.name;
   }
 
   // Usada para la lectura desde .txt
@@ -41,6 +47,7 @@ export class GramaticasComponent implements OnInit {
     let fileReader = new FileReader();
     fileReader.onload = (e) => {
       console.log(fileReader.result);
+      this.docCadena(fileReader.result.toString());
     };
     fileReader.readAsText(this.file);
   }
@@ -161,6 +168,7 @@ export class GramaticasComponent implements OnInit {
             if (lista[i][0] !== '<') {
               estado = 10; // Estado de error;
               console.log('error');
+              this.error = true;
               return;
             } else {
               estado = 2;
@@ -171,6 +179,7 @@ export class GramaticasComponent implements OnInit {
             if (lista[i][j] === ('>' || '~' || '!')) {
               estado = 10;
               console.log('error');
+              this.error = true;
               return;
             } else {
               estado = 3;
@@ -181,6 +190,7 @@ export class GramaticasComponent implements OnInit {
             if (lista[i][j] === ('<' || '~' || '!')) {
               estado = 10;
               console.log('error');
+              this.error = true;
               return;
             } else if (lista[i][j] === '>') {
               estado = 4;
@@ -202,6 +212,7 @@ export class GramaticasComponent implements OnInit {
             } else {
               estado = 10;
               console.log('error');
+              this.error = true;
               return;
             }
           case 5:
@@ -222,6 +233,7 @@ export class GramaticasComponent implements OnInit {
                 estado = 10;
                 estado = 10;
                 console.log('error');
+                this.error = true;
                 return;
               } else {
                 estado = 6;
@@ -243,6 +255,7 @@ export class GramaticasComponent implements OnInit {
             if (nulo) {
               estado = 10;
               console.log('error');
+              this.error = true;
               return;
             }
             break;
@@ -250,6 +263,7 @@ export class GramaticasComponent implements OnInit {
             if (lista[i][j] === ('>' || '~' || '!' || '<')) {
               estado = 10;
               console.log('error');
+              this.error = true;
               return;
             } else {
               estado = 8;
@@ -260,6 +274,7 @@ export class GramaticasComponent implements OnInit {
               if (lista[i][j] === ('<' || '~' || '!')) {
                 estado = 10;
                 console.log('error');
+                this.error = true;
                 return;
               } else if (lista[i][j] === '>') {
                 estado = 9;
@@ -281,6 +296,7 @@ export class GramaticasComponent implements OnInit {
             } else if (lista[i][j] === ('!' || '~' || '>')) {
               estado = 10;
               console.log('error');
+              this.error = true;
               return;
             } else {
               estado = 5;
@@ -481,24 +497,39 @@ export class GramaticasComponent implements OnInit {
     return siguientes;
   }
 
-  docCadena() {
-    const value: string = this.gramaticas.controls.manual.value;
+  docCadena(origen: string) {
+    let value: string;
+    if (origen === 'manual') {
+      value = this.gramaticas.controls.manual.value;
+      this.paginaCargada = true;
+    } else {
+      value = origen;
+      this.paginaCargada = true;
+    }
     this.gramPrevia(value);
     console.log(this.cadena);
     this.construyeLista(this.cadena);
-    this.primRecorrido();
-    this.segundoRecorrido();
-    this.produccionesAnu();
-    this.obtenerElementoGram();
-    this.noTerm();
-    this.primerosNuevo(this.noTerminales);
-    this.primerosProducciones();
-    let especial = this.analizador.isFormaEspecial(this.producciones);
-    console.log('Es de la forma especial: ' + especial);
-    let derecha = this.analizador.isLinealXDerecha(this.producciones);
-    console.log('Es lineal por la derecha = ' + derecha);
-    let s = this.analizador.isGramS(this.producciones);
-    console.log('Es gramática s: ' + s);
+    if (this.error === false) {
+      this.primRecorrido();
+      this.segundoRecorrido();
+      this.produccionesAnu();
+      this.obtenerElementoGram();
+      this.noTerm();
+      this.primerosNuevo(this.noTerminales);
+      this.primerosProducciones();
+
+      console.log(this.nAnulables.toString());
+      console.log(this.producAnulables.toString());
+      console.log(this.primerosProd);
+      let especial = this.analizador.isFormaEspecial(this.producciones);
+      console.log('Es de la forma especial: ' + especial);
+      let derecha = this.analizador.isLinealXDerecha(this.producciones);
+      console.log('Es lineal por la derecha = ' + derecha);
+      let s = this.analizador.isGramS(this.producciones);
+      console.log('Es gramática s: ' + s);
+    } else {
+      this.error = true;
+    }
   }
 }
 

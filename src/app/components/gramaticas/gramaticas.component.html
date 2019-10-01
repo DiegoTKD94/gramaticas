@@ -8,7 +8,7 @@
                 <label for="exampleFormControlTextarea1">Ingreso manual de gramática</label>
                 <textarea formControlName="manual" class="form-control" id="exampleFormControlTextarea1" rows="5"></textarea>
             </div>
-            <button type="button" class="btn btn-primary" (click)="docCadena()">Primary</button>
+            <button [disabled]="paginaCargada" type="button" class="btn btn-primary" (click)="docCadena('manual')">Evaluar</button>
         </div>
 
         <div class="col-md-6">
@@ -16,29 +16,58 @@
             <div class="input-group mb-3">
                 <div class="custom-file">
                     <input type="file" formControlName="archivo" class="custom-file-input" id="inputGroupFile02" (change)="fileChanged($event)">
-                    <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Adjuntar archivo</label>
+                    <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Click para adjuntar</label>
                 </div>
                 <div class="input-group-append">
                     <span class="input-group-text" id="inputGroupFileAddon02">Upload</span>
                 </div>
             </div>
-            <button type="button" class="btn btn-primary" (click)="uploadDocument(file)">Secundario</button>
+            <h6 *ngIf="adjunto === false">No hay archivo adjunto</h6>
+            <h6 *ngIf="adjunto">{{ nombreArchivo }}</h6>
+            <button [disabled]="paginaCargada" type="button" class="btn btn-primary" (click)="uploadDocument(file)">Adjuntar</button>
         </div>
     </div>
 </form>
 
 <br>
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col"># de producción</th>
-            <th scope="col">Datos</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <th scope="row">1</th>
-            <td>Mark</td>
-        </tr>
-    </tbody>
-</table>
+
+<div *ngIf="error" class="alert alert-warning" role="alert">
+    La expresión o la gramática ingresada no corresponde al formato necesario para ser evaluada
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <table class="table" *ngIf="paginaCargada">
+            <thead>
+                <tr>
+                    <th scope="col"># de produccion</th>
+                    <th scope="col">Producciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let prod of cadena; let indice = index">
+                    <th>{{ indice }}</th>
+                    <td scope="row">{{ prod }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card" *ngIf="paginaCargada">
+            <div class="card-header">
+                Resultados:
+            </div>
+            <div class="card-body">
+                <h6 class="card-title">No terminales anulables:</h6>
+                <p class="card-text">{{ nAnulables.toString() }}</p>
+                <h6 class="card-title">Producciones anulables:</h6>
+                <p class="card-text">{{ producAnulables.toString() }}</p>
+                <h6 class="card-title">Primeros de cada produccion:</h6>
+                <p class="card-text" *ngFor="let primero of primerosProd; let indice = index">Primero produccion {{ indice }} = {{ primero }}</p>
+                <h6 class="card-title">Primeros de los no terminales (N):</h6>
+                <p class="card-text" *ngFor="let elemento of elementoGram">{{ elemento.valor }} = {{ elemento.primeros.toString() }}</p>
+            </div>
+        </div>
+    </div>
+</div>
