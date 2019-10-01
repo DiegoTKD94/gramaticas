@@ -7,8 +7,6 @@ import { THIS_EXPR, ClassField } from '@angular/compiler/src/output/output_ast';
 import { ElementoGramService } from '../../services/elemento-gram.service';
 
 
-
-
 @Component({
   selector: 'app-gramaticas',
   templateUrl: './gramaticas.component.html',
@@ -417,7 +415,9 @@ export class GramaticasComponent implements OnInit {
     for (let i = 0; i < tamaño; i++) {
       let siguiente = this.producciones[i].obtenerHead().next;
       if (siguiente.value.getValue() === '!') {
-        this.primerosProd.push('');
+        let arrayNulo: string[] = [];
+        arrayNulo.push('');
+        this.primerosProd.push(arrayNulo);
       } else {
         let tipo = siguiente.value.getTipo();
         switch (tipo) {
@@ -471,6 +471,47 @@ export class GramaticasComponent implements OnInit {
     return this.elementoGram[indice].getPrimeros();
   }
 
+  conjSiguientes() {
+    for (let elemento of this.noTerminales) {
+      this.nuevoSiguientesInd(elemento);
+    }
+  }
+
+  nuevoSiguientesInd(valor: string) {
+    let siguientes: string[] = [];
+    // Examina si es la produccion inicial
+    if (valor === this.producciones[0].obtenerHead().value.getValue()) {
+      siguientes.push('#');
+    }
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 0; i < this.producciones.length; i++) {
+      let nodo = this.producciones[i].obtenerHead().next; // Hace de nodo el primer nodo en el lado derecho
+      if (nodo.value.getValue() !== '!') {
+        let nulo = false;
+        while (nulo === false) {
+          if ((nodo !== null) && nodo.value.getValue() !== valor) { // El valor del nodo es diferente al elemento examinado
+            nodo = nodo.next;
+          } else if (nodo === null) {
+            nulo = true;
+          } else if ((nodo !== null) && (nodo.value.getValue() === valor)) { // Es el mismo valor
+              let lista = [];
+              let head = this.producciones[i].obtenerHead();
+              if (nodo.next === null) {
+                console.log('Esta al final');
+              } else if (nodo.next.value.getTipo() === 'T') { // Nodo siguiente es terminal
+                console.log('El nodo siguiente es un T');
+              } else if (nodo.next.value.getTipo() === 'N') { // Nodo siguiente es no terminal
+                console.log('El nodo siguiente es un N');
+              }
+
+
+              nodo = nodo.next;
+          }
+        }
+      }
+    }
+  }
+
   docCadena() {
     const value: string = this.gramaticas.controls.manual.value;
     this.gramPrevia(value);
@@ -482,9 +523,8 @@ export class GramaticasComponent implements OnInit {
     this.obtenerElementoGram();
     this.noTerm();
     this.primerosNuevo(this.noTerminales);
-    console.log(this.elementoGram);
     this.primerosProducciones();
-    console.log(this.primerosProd);
+    this.conjSiguientes();
   }
 }
 
