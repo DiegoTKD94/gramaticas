@@ -12,10 +12,10 @@
         </div>
 
         <div class="col-md-6">
-            <label for="exampleFormControlTextarea1">Carga de archivo .txt con gramática</label>
+            <label for="exampleFormControlTextarea1">Carga de gramática desde archivo .txt</label>
             <div class="input-group mb-3">
                 <div class="custom-file">
-                    <input type="file" formControlName="archivo" class="custom-file-input" id="inputGroupFile02" (change)="fileChanged($event)">
+                    <input type="file" formControlName="archivo" class="custom-file-input" accept=".txt" id="inputGroupFile02" (change)="fileChanged($event)">
                     <label class="custom-file-label" for="inputGroupFile02" aria-describedby="inputGroupFileAddon02">Click para adjuntar</label>
                 </div>
                 <div class="input-group-append">
@@ -67,6 +67,12 @@
                 <p class="card-text" *ngFor="let primero of primerosProd; let indice = index">Primero produccion {{ indice }} = {{ primero }}</p>
                 <h6 class="card-title">Primeros de los no terminales (N):</h6>
                 <p class="card-text" *ngFor="let elemento of elementoGram">{{ elemento.valor }} = {{ elemento.primeros.toString() }}</p>
+                <h6 class="card-title">¿Es de la forma especial?</h6>
+                <p class="card-text">{{especial}}</p>
+                <h6 class="card-title">¿Es lineal por la derecha?</h6>
+                <p class="card-text">{{derecha}}</p>
+                <h6 class="card-title">¿Es tipo S?</h6>
+                <p class="card-text">{{s}}</p>
             </div>
         </div>
     </div>

@@ -1,1 +1,13 @@
-<p>home works!</p>
+<div class="jumbotron">
+    <h1 class="display-4">Bienvenido a Gramáticas</h1>
+    <p class="lead">Desarrollado por el estudiante de ingeniería de sistemas Diego Alexander Chavarría para el curso de teoría de lenguajes 2019-1 de la universidad de Antioquia</p>
+    <hr class="my-4">
+    <p>Click en comenzar para analizar una gramática, un ejemplo de produccion es el siguiente: &lt;A&gt;~a&lt;A&gt;</p>
+    <p>donde:</p>
+    <p>"&lt;" y "&gt;" Indican un no terminal</p>
+    <p>Los terminales van sin las llaves, como el caracter "a"</p>
+    <p>El signo ~ divide el lado izquierdo del lado derecho de la producción</p>
+    <p>El símbolo para indicar la secuencia nula es !</p>
+    <p>Nota: No ingresar números al comienzo de la producción, el software detectará el número de la misma</p>
+    <a class="btn btn-primary btn-lg" [routerLink]="['/gramaticas']" role="button">Comenzar</a>
+</div>
