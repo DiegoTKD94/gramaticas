@@ -3,6 +3,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { LinkedListService } from '../../services/linked-list.service';
 import { NodoService } from '../../services/nodo.service';
 import { ElementoGramService } from '../../services/elemento-gram.service';
+import { AnalizadorGramaticalService } from '../../services/analizador-gramatical.service';
+
 
 
 @Component({
@@ -21,7 +23,7 @@ export class GramaticasComponent implements OnInit {
   noTerminales: string[] = [];
   primerosProd: string[][] = [];
 
-  constructor() { }
+  constructor(private analizador: AnalizadorGramaticalService) { }
 
   gramaticas = new FormGroup({
     manual: new FormControl(''),
@@ -306,38 +308,6 @@ export class GramaticasComponent implements OnInit {
     }
   }
 
-  primeros() {
-    for (let produccion of this.producciones) {
-      // tslint:disable-next-line: prefer-for-of
-      let indice: number;
-      let terminal = false;
-      let siguiente = produccion.obtenerHead().next;
-      let actual = produccion.obtenerHead().value.getValue();
-      for (let j = 0; j < this.elementoGram.length; j++) {
-        if (this.elementoGram[j].getValor() === produccion.obtenerHead().value.getValue()) {
-          indice = j;
-          break;
-        }
-      }
-      if ((siguiente.value.getTipo() === 'T') && (siguiente.value.getValue() !== '!')) { // El valor es un terminal
-        console.log('Entro');
-        this.elementoGram[indice].addPrimero(siguiente.value.getValue());
-      } else if (siguiente.value.getValue() !== '!') { // El nodo es un no terminal
-          while (terminal === false) {
-            if (siguiente.value.getValue() !== actual) { // No es el mismo nodo
-              this.elementoGram[indice].addPrimero(siguiente.value.getValue());
-              if (siguiente.value.getTipo() === 'T') {
-                terminal = true;
-              }
-            }
-            if (siguiente.next === null) {
-              break;
-            }
-          }
-      }
-    }
-  }
-
   noTerm() {
     for (let produccion of this.producciones) {
       if (this.noTerminales.indexOf(produccion.obtenerHead().value.getValue()) < 0) {
@@ -523,6 +493,10 @@ export class GramaticasComponent implements OnInit {
     this.noTerm();
     this.primerosNuevo(this.noTerminales);
     this.primerosProducciones();
+    let especial = this.analizador.isFormaEspecial(this.producciones);
+    console.log('Es de la forma especial: ' + especial);
+    let derecha = this.analizador.isLinealXDerecha(this.producciones);
+    console.log('Es lineal por la derecha = ' + derecha);
   }
 }
 
