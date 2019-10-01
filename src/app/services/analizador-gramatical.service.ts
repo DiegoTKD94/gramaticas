@@ -67,8 +67,34 @@ export class AnalizadorGramaticalService {
 
   // Cond 1: Todas las producciones comienzan con no terminal
   // Cond 2: las producciones que empiezan por el mismo N, comienzan por diferente terminal
-  isGramS(produccion: LinkedListService<NodoService>) {
-
+  isGramS(producciones: LinkedListService<NodoService>[]) {
+    let s = true;
+    for (let produccion of producciones) {
+      let nodo = produccion.obtenerHead().next.value;
+      this.noTerminales.push((produccion.obtenerHead().value.getValue()));
+      if ((nodo.getValue() === '!') || (nodo.getTipo() === 'N')) {
+        s = false;
+        return s;
+      }
+    }
+    for (let N of this.noTerminales) {
+      let term: string[] = [];
+      let contador = 0;
+      for (let produccion of producciones) {
+        if (N === produccion.obtenerHead().value.getValue()) {
+          contador ++;
+          let terminal = produccion.obtenerHead().next.value.getValue();
+          if (term.indexOf(terminal) < 0) {
+            term.push(terminal);
+          }
+        }
+      }
+      if (term.length !== contador) {
+        s = false;
+        return s;
+      }
+    }
+    return s;
   }
 
   isLinealXDerecha(valor: LinkedListService<NodoService>[]) {

@@ -497,6 +497,8 @@ export class GramaticasComponent implements OnInit {
     console.log('Es de la forma especial: ' + especial);
     let derecha = this.analizador.isLinealXDerecha(this.producciones);
     console.log('Es lineal por la derecha = ' + derecha);
+    let s = this.analizador.isGramS(this.producciones);
+    console.log('Es gramática s: ' + s);
   }
 }
 
