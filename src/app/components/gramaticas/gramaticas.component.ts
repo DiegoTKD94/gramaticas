@@ -58,10 +58,6 @@ export class GramaticasComponent implements OnInit {
   ngOnInit() {
   }
 
-  pruebaTxt() {
-    console.log(this.gramaticas.controls.archivo);
-  }
-
   // Indexa cada una de las producciones, no ha hecho validación
   gramPrevia(valor: string) {
     let contador = 0;
